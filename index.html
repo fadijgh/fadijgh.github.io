@@ -1,9 +1,541 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Romantic Game</title>
+  <style>
+    :root{
+      --bg1:#ffd6e7;
+      --bg2:#fff1f7;
+      --card:#ffffffcc;
+      --text:#2a1b2a;
+      --accent:#ff4d88;
+      --accent2:#ff7aa8;
+      --shadow: 0 18px 45px rgba(0,0,0,.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(1200px 600px at 20% 10%, #fff 0%, transparent 60%),
+                  radial-gradient(900px 500px at 85% 25%, #fff 0%, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+    }
+
+    /* floating hearts */
+    .hearts{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      opacity:.45;
+    }
+    .heart{
+      position:absolute;
+      width:18px; height:18px;
+      transform: rotate(45deg);
+      background: var(--accent);
+      border-radius: 4px;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,.08));
+    }
+    .heart::before, .heart::after{
+      content:"";
+      position:absolute;
+      width:18px; height:18px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .heart::before{ left:-9px; top:0; }
+    .heart::after{ left:0; top:-9px; }
+    @keyframes floatUp{
+      from{ transform:translateY(110vh) rotate(45deg); opacity:0; }
+      10%{ opacity:1; }
+      to{ transform:translateY(-20vh) rotate(45deg); opacity:0; }
+    }
+
+    .wrap{
+      width:min(720px, 92vw);
+      padding: 18px;
+    }
+
+    .card{
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.6);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,77,136,.12);
+      border: 1px solid rgba(255,77,136,.25);
+      font-size: 13px;
+      letter-spacing:.2px;
+      margin-bottom: 14px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(255,77,136,.18);
+    }
+
+    h1{
+      margin: 0 0 10px 0;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+    p{
+      margin: 0 0 18px 0;
+      opacity: .85;
+      font-size: clamp(14px, 2vw, 16px);
+      line-height: 1.5;
+    }
+
+    .btnRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top: 14px;
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      transition: transform .12s ease, box-shadow .12s ease, background .2s ease;
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+
+    .primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+    }
+    .primary:hover{ box-shadow: 0 14px 26px rgba(255,77,136,.28); transform: translateY(-1px); }
+
+    .secondary{
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(0,0,0,.08);
+      color: var(--text);
+    }
+    .secondary:hover{ transform: translateY(-1px); box-shadow: 0 14px 26px rgba(0,0,0,.10); }
+
+    .message{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,77,136,.20);
+      display:none;
+      animation: popIn .25s ease;
+    }
+    @keyframes popIn{
+      from{ transform: translateY(6px); opacity:0; }
+      to{ transform: translateY(0); opacity:1; }
+    }
+
+    .progress{
+      margin-top: 18px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill{
+      height: 8px;
+      flex: 1;
+      border-radius: 999px;
+      background: rgba(0,0,0,.06);
+      overflow:hidden;
+      position:relative;
+    }
+    .pill > span{
+      position:absolute;
+      inset:0;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
+    .stepText{
+      font-size: 12px;
+      opacity:.7;
+      min-width: 86px;
+      text-align:right;
+    }
+
+    /* slider */
+    .sliderWrap{
+      margin-top: 12px;
+      padding: 14px 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(0,0,0,.07);
+    }
+    input[type="range"]{
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .valueRow{
+      display:flex;
+      justify-content:space-between;
+      margin-top: 8px;
+      font-size: 13px;
+      opacity: .85;
+    }
+    .maxValue{
+      font-weight: 750;
+      color: var(--accent);
+    }
+
+    /* Q3 arena for runaway button */
+    .arena{
+      margin-top: 16px;
+      height: 190px;
+      border-radius: 18px;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(240px 140px at 20% 30%, rgba(255,77,136,.10), transparent 70%),
+        radial-gradient(220px 120px at 80% 70%, rgba(255,122,168,.12), transparent 70%),
+        rgba(255,255,255,.55);
+      border: 1px dashed rgba(255,77,136,.30);
+    }
+    .arenaHint{
+      position:absolute;
+      inset: 12px 12px auto 12px;
+      font-size: 13px;
+      opacity:.75;
+    }
+    .arenaBtns{
+      position:absolute;
+      inset: 0;
+    }
+    #yesFinal{
+      position:absolute;
+      left: 20px;
+      bottom: 18px;
+    }
+    #noFinal{
+      position:absolute;
+      right: 20px;
+      bottom: 18px;
+      touch-action: none;
+    }
+
+    /* fade transition between screens */
+    .screen{
+      display:none;
+      animation: fadeIn .35s ease;
+    }
+    .screen.active{ display:block; }
+    @keyframes fadeIn{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .footerNote{
+      margin-top: 14px;
+      font-size: 12px;
+      opacity:.65;
+    }
+
+    /* small screens */
+    @media (max-width: 520px){
+      button{ width: 100%; justify-content:center; }
+      .stepText{ min-width: 72px; }
+    }
+  </style>
+</head>
 
 <body>
-  <h1>Fadi Ghosh</h1>
-  <p>Welcome to my website!</p>
-  <img src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif"/>
-</body>
+  <div class="hearts" id="hearts"></div>
 
+  <div class="wrap">
+    <div class="card">
+      <div class="badge"><span class="dot"></span><span>Romantic Mini-Game</span></div>
+
+      <!-- Screen 0 -->
+      <div class="screen active" id="screen0">
+        <h1>You wanna play a game?</h1>
+        <p>Two buttons. One destiny. 💘</p>
+
+        <div class="btnRow">
+          <button class="primary" id="startYes">Yes</button>
+          <button class="secondary" id="startNo">No</button>
+        </div>
+
+        <div class="message" id="startMsg">Okay, we’ll start the game 😊</div>
+
+        <div class="progress">
+          <div class="pill"><span id="bar"></span></div>
+          <div class="stepText" id="stepText">Step 0/3</div>
+        </div>
+
+        <div class="footerNote">Tip: Works on mobile too.</div>
+      </div>
+
+      <!-- Screen 1 -->
+      <div class="screen" id="screen1">
+        <h1>You love me?</h1>
+        <p>Be careful… there’s only one correct vibe 😌</p>
+
+        <div class="btnRow">
+          <button class="primary" id="q1a">Yes</button>
+          <button class="secondary" id="q1b">Yes, definitely</button>
+        </div>
+
+        <div class="progress">
+          <div class="pill"><span id="bar1"></span></div>
+          <div class="stepText" id="stepText1">Step 1/3</div>
+        </div>
+      </div>
+
+      <!-- Screen 2 -->
+      <div class="screen" id="screen2">
+        <h1>How much?</h1>
+        <p>Try moving it… I dare you 😏</p>
+
+        <div class="sliderWrap">
+          <input type="range" id="loveSlider" min="0" max="1000000000000" step="1" value="1000000000000" />
+          <div class="valueRow">
+            <span>0</span>
+            <span class="maxValue" id="sliderValue">1,000,000,000,000</span>
+          </div>
+        </div>
+
+        <div class="btnRow" style="margin-top:16px">
+          <button class="primary" id="q2next">Next</button>
+        </div>
+
+        <div class="progress">
+          <div class="pill"><span id="bar2"></span></div>
+          <div class="stepText" id="stepText2">Step 2/3</div>
+        </div>
+      </div>
+
+      <!-- Screen 3 -->
+      <div class="screen" id="screen3">
+        <h1>Can you sit on my face?</h1>
+        <p>One of these is… surprisingly difficult to pick.</p>
+
+        <div class="arena" id="arena">
+          <div class="arenaHint">Try to click “No” 👀</div>
+          <div class="arenaBtns">
+            <button class="primary" id="yesFinal">Yes</button>
+            <button class="secondary" id="noFinal">No</button>
+          </div>
+        </div>
+
+        <div class="message" id="finalMsg">💘 Okay. That’s the cutest “Yes” ever.</div>
+
+        <div class="progress">
+          <div class="pill"><span id="bar3"></span></div>
+          <div class="stepText" id="stepText3">Step 3/3</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ---------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+
+    function showScreen(n){
+      const screens = ["screen0","screen1","screen2","screen3"];
+      screens.forEach((sid, i) => {
+        $(sid).classList.toggle("active", i === n);
+      });
+      // progress bars
+      const pct = (n/3)*100;
+      ["bar","bar1","bar2","bar3"].forEach((bid) => {
+        if ($(bid)) $(bid).style.width = pct + "%";
+      });
+    }
+
+    // ---------- floating hearts background ----------
+    (function makeHearts(){
+      const container = $("hearts");
+      const count = 20;
+      for(let i=0;i<count;i++){
+        const h = document.createElement("div");
+        h.className = "heart";
+        const size = 10 + Math.random()*16;
+        h.style.width = size+"px";
+        h.style.height = size+"px";
+        h.style.left = (Math.random()*100)+"vw";
+        h.style.animationDuration = (6 + Math.random()*8) + "s";
+        h.style.animationDelay = (-Math.random()*10) + "s";
+        h.style.opacity = 0.2 + Math.random()*0.6;
+        container.appendChild(h);
+      }
+    })();
+
+    // ---------- flow control ----------
+    const startMsg = $("startMsg");
+
+    $("startYes").addEventListener("click", () => {
+      showScreen(1);
+    });
+
+    $("startNo").addEventListener("click", () => {
+      // show message then proceed
+      startMsg.style.display = "block";
+      setTimeout(() => showScreen(1), 850);
+    });
+
+    $("q1a").addEventListener("click", () => showScreen(2));
+    $("q1b").addEventListener("click", () => showScreen(2));
+
+    // ---------- slider "always 1 trillion" ----------
+    const slider = $("loveSlider");
+    const sliderValue = $("sliderValue");
+    const MAX = 1000000000000;
+
+    function formatNumber(n){
+      return n.toLocaleString("en-US");
+    }
+    function lockSlider(){
+      slider.value = String(MAX);
+      sliderValue.textContent = formatNumber(MAX);
+    }
+    lockSlider();
+
+    // If user tries to change, snap back instantly
+    slider.addEventListener("input", lockSlider);
+    slider.addEventListener("change", lockSlider);
+    slider.addEventListener("pointerdown", () => setTimeout(lockSlider, 0));
+    slider.addEventListener("touchstart", () => setTimeout(lockSlider, 0), {passive:true});
+
+    $("q2next").addEventListener("click", () => showScreen(3));
+
+    // ---------- runaway "No" button ----------
+    const arena = $("arena");
+    const noBtn = $("noFinal");
+    const yesBtn = $("yesFinal");
+    const finalMsg = $("finalMsg");
+
+    function clamp(val, min, max){ return Math.min(max, Math.max(min, val)); }
+
+    function moveNoButtonAway(fromX, fromY){
+      const rect = arena.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      // current position within arena
+      const currentLeft = parseFloat(noBtn.style.left || "");
+      const currentTop = parseFloat(noBtn.style.top || "");
+
+      // If we haven't placed via left/top yet, initialize from current DOM position
+      let left, top;
+      if (Number.isFinite(currentLeft) && Number.isFinite(currentTop)) {
+        left = currentLeft;
+        top  = currentTop;
+      } else {
+        left = (btnRect.left - rect.left);
+        top  = (btnRect.top - rect.top);
+      }
+
+      // vector from pointer to button center
+      const cx = left + btnRect.width/2;
+      const cy = top  + btnRect.height/2;
+      const vx = cx - fromX;
+      const vy = cy - fromY;
+
+      // push distance
+      const push = 80 + Math.random()*70;
+      const len = Math.hypot(vx, vy) || 1;
+      const ux = vx/len, uy = vy/len;
+
+      // new target
+      let newLeft = left + ux*push + (Math.random()*20 - 10);
+      let newTop  = top  + uy*push + (Math.random()*20 - 10);
+
+      // keep inside arena bounds with padding
+      const pad = 10;
+      const maxLeft = rect.width - btnRect.width - pad;
+      const maxTop  = rect.height - btnRect.height - pad;
+
+      newLeft = clamp(newLeft, pad, maxLeft);
+      newTop  = clamp(newTop, pad, maxTop);
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top  = newTop  + "px";
+      noBtn.style.right = "auto";
+      noBtn.style.bottom = "auto";
+    }
+
+    // On desktop: evade on hover/mousemove near it
+    noBtn.addEventListener("mouseenter", (e) => {
+      const rect = arena.getBoundingClientRect();
+      moveNoButtonAway(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    // Also evade when pointer gets close inside the arena
+    arena.addEventListener("mousemove", (e) => {
+      const rect = arena.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      const b = noBtn.getBoundingClientRect();
+      const bx = b.left - rect.left;
+      const by = b.top - rect.top;
+
+      const dx = mx - (bx + b.width/2);
+      const dy = my - (by + b.height/2);
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 120) moveNoButtonAway(mx, my);
+    });
+
+    // Mobile: evade on touch
+    noBtn.addEventListener("touchstart", (e) => {
+      const rect = arena.getBoundingClientRect();
+      const t = e.touches[0];
+      moveNoButtonAway(t.clientX - rect.left, t.clientY - rect.top);
+      e.preventDefault();
+    }, {passive:false});
+
+    // Prevent "No" from being clicked via keyboard/accidental tap
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = arena.getBoundingClientRect();
+      moveNoButtonAway(rect.width/2, rect.height/2);
+    });
+
+    yesBtn.addEventListener("click", () => {
+      finalMsg.style.display = "block";
+      finalMsg.scrollIntoView({behavior:"smooth", block:"nearest"});
+    });
+
+    // start progress bar state
+    showScreen(0);
+  </script>
+</body>
 </html>
