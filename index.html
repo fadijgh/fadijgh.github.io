@@ -265,11 +265,22 @@
       opacity:.65;
     }
 
-    /* small screens */
+    /* Extra mobile tuning for final question buttons */
     @media (max-width: 520px){
-      button{ width: 100%; justify-content:center; }
-      .stepText{ min-width: 72px; }
+      #yesFinal,
+      #noFinal{
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 12px;
+        min-width: 72px;
+      }
+
+      .arena{
+        height: 160px; /* slightly smaller arena for mobile */
+      }
     }
+
+    
   </style>
 </head>
 
