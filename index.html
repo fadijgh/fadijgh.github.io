@@ -424,25 +424,72 @@
     $("q1a").addEventListener("click", () => showScreen(2));
     $("q1b").addEventListener("click", () => showScreen(2));
 
-    // ---------- slider "always 1 trillion" ----------
-    const slider = $("loveSlider");
-    const sliderValue = $("sliderValue");
-    const MAX = 1000000000000;
+// ---------- slider: starts at 0, first interaction jumps to 1T,
+// then user can drag but it snaps back to 1T ----------
+const slider = $("loveSlider");
+const sliderValue = $("sliderValue");
+const MAX = 1000000000000;
 
-    function formatNumber(n){
-      return n.toLocaleString("en-US");
-    }
-    function lockSlider(){
-      slider.value = String(MAX);
-      sliderValue.textContent = formatNumber(MAX);
-    }
-    lockSlider();
+function formatNumber(n){
+  return n.toLocaleString("en-US");
+}
 
-    // If user tries to change, snap back instantly
-    slider.addEventListener("input", lockSlider);
-    slider.addEventListener("change", lockSlider);
-    slider.addEventListener("pointerdown", () => setTimeout(lockSlider, 0));
-    slider.addEventListener("touchstart", () => setTimeout(lockSlider, 0), {passive:true});
+function setSliderValue(v){
+  slider.value = String(v);
+  sliderValue.textContent = formatNumber(v);
+}
+
+// Start at 0
+setSliderValue(0);
+
+// State machine
+let hasJumpedToMax = false;
+let snapTimer = null;
+
+// Snap back helper (keeps it feeling instantaneous)
+function snapBackSoon(){
+  clearTimeout(snapTimer);
+  snapTimer = setTimeout(() => setSliderValue(MAX), 0);
+}
+
+// First interaction: jump immediately to MAX
+function firstJump(){
+  if (!hasJumpedToMax){
+    hasJumpedToMax = true;
+    setSliderValue(MAX);
+  }
+}
+
+// 1) On the first "attempt" (touch/click/drag start), instantly jump to MAX
+slider.addEventListener("pointerdown", () => {
+  firstJump();
+  // After first jump, allow dragging but always snap back
+  if (hasJumpedToMax) snapBackSoon();
+});
+
+slider.addEventListener("touchstart", () => {
+  firstJump();
+  if (hasJumpedToMax) snapBackSoon();
+}, { passive: true });
+
+// 2) While dragging:
+// - If user hasn't triggered the jump yet: jump now
+// - If already jumped: let them drag, but snap back immediately
+slider.addEventListener("input", () => {
+  if (!hasJumpedToMax){
+    firstJump();
+    return;
+  }
+  // user can drag, but it returns right away
+  snapBackSoon();
+});
+
+// 3) On release, ensure it's MAX
+slider.addEventListener("change", () => {
+  if (!hasJumpedToMax) firstJump();
+  setSliderValue(MAX);
+});
+
 
     $("q2next").addEventListener("click", () => showScreen(3));
 
