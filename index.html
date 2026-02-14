@@ -1,609 +1,443 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Romantic Game</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Love Buttons 💗</title>
+
   <style>
     :root{
-      --bg1:#ffd6e7;
-      --bg2:#fff1f7;
+      --bg1:#fff0f6;
+      --bg2:#ffe9f0;
       --card:#ffffffcc;
-      --text:#2a1b2a;
+      --ink:#3a2030;
+      --muted:#6b465a;
       --accent:#ff4d88;
-      --accent2:#ff7aa8;
+      --accent2:#ff7aa6;
       --shadow: 0 18px 45px rgba(0,0,0,.12);
       --radius: 22px;
     }
 
-    * { box-sizing: border-box; }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color: var(--text);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: radial-gradient(1200px 600px at 20% 10%, #fff 0%, transparent 60%),
-                  radial-gradient(900px 500px at 85% 25%, #fff 0%, transparent 55%),
-                  linear-gradient(135deg, var(--bg1), var(--bg2));
-      overflow:hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(900px 500px at 10% 10%, #fff 0%, transparent 60%),
+        radial-gradient(700px 500px at 90% 15%, #fff 0%, transparent 55%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      overflow-x:hidden;
     }
 
-    /* floating hearts */
-    .hearts{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      overflow:hidden;
-      opacity:.45;
-    }
-    .heart{
-      position:absolute;
-      width:18px; height:18px;
-      transform: rotate(45deg);
+    /* Floating hearts layer (simple) */
+    .heart {
+      position: fixed;
+      width: 14px;
+      height: 14px;
       background: var(--accent);
-      border-radius: 4px;
+      transform: rotate(45deg);
+      opacity: .18;
+      z-index: 0;
+      pointer-events: none;
       animation: floatUp linear infinite;
-      filter: drop-shadow(0 6px 8px rgba(0,0,0,.08));
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.08));
     }
     .heart::before, .heart::after{
       content:"";
       position:absolute;
-      width:18px; height:18px;
-      background: var(--accent);
-      border-radius: 50%;
+      width:14px;height:14px;
+      background:inherit;
+      border-radius:50%;
     }
-    .heart::before{ left:-9px; top:0; }
-    .heart::after{ left:0; top:-9px; }
+    .heart::before{ left:-7px; top:0; }
+    .heart::after{ top:-7px; left:0; }
+
     @keyframes floatUp{
-      from{ transform:translateY(110vh) rotate(45deg); opacity:0; }
-      10%{ opacity:1; }
-      to{ transform:translateY(-20vh) rotate(45deg); opacity:0; }
+      from { transform: translateY(20vh) rotate(45deg); }
+      to   { transform: translateY(-120vh) rotate(45deg); }
     }
 
     .wrap{
-      width:min(720px, 92vw);
-      padding: 18px;
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 16px;
+      position:relative;
+      z-index:1;
     }
 
     .card{
+      width:min(980px, 100%);
       background: var(--card);
+      border: 1px solid rgba(255,77,136,.18);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,.6);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
-      padding: 28px 22px;
-      position:relative;
-      overflow:hidden;
+      padding: 26px;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,77,136,.12);
-      border: 1px solid rgba(255,77,136,.25);
-      font-size: 13px;
-      letter-spacing:.2px;
-      margin-bottom: 14px;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(255,77,136,.18);
-    }
-
-    h1{
-      margin: 0 0 10px 0;
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.1;
-      letter-spacing: -0.5px;
-    }
-    p{
-      margin: 0 0 18px 0;
-      opacity: .85;
-      font-size: clamp(14px, 2vw, 16px);
-      line-height: 1.5;
-    }
-
-    .btnRow{
+    header{
       display:flex;
-      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:space-between;
       gap:12px;
-      margin-top: 14px;
+      margin-bottom: 18px;
     }
 
-    button{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-size: 16px;
-      font-weight: 650;
-      letter-spacing: .2px;
-      transition: transform .12s ease, box-shadow .12s ease, background .2s ease;
-      box-shadow: 0 10px 18px rgba(0,0,0,.08);
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
+    .title{
+      line-height:1.1;
     }
-    button:active{ transform: translateY(1px) scale(.99); }
-
-    .primary{
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
+    .title h1{
+      margin:0;
+      font-size: clamp(22px, 2.6vw, 32px);
+      letter-spacing:.2px;
     }
-    .primary:hover{ box-shadow: 0 14px 26px rgba(255,77,136,.28); transform: translateY(-1px); }
-
-    .secondary{
-      background: rgba(255,255,255,.7);
-      border: 1px solid rgba(0,0,0,.08);
-      color: var(--text);
+    .title p{
+      margin:10px 0 0;
+      color:var(--muted);
+      max-width: 62ch;
     }
-    .secondary:hover{ transform: translateY(-1px); box-shadow: 0 14px 26px rgba(0,0,0,.10); }
 
-    .message{
-      margin-top: 12px;
+    .hint{
+      font-size: 12.5px;
+      color: var(--muted);
+      background: rgba(255,255,255,.6);
       padding: 10px 12px;
       border-radius: 14px;
-      background: rgba(255,255,255,.7);
-      border: 1px solid rgba(255,77,136,.20);
-      display:none;
-      animation: popIn .25s ease;
-    }
-    @keyframes popIn{
-      from{ transform: translateY(6px); opacity:0; }
-      to{ transform: translateY(0); opacity:1; }
+      border: 1px solid rgba(0,0,0,.05);
+      white-space: nowrap;
+      align-self: flex-start;
     }
 
-    .progress{
-      margin-top: 18px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .pill{
-      height: 8px;
-      flex: 1;
-      border-radius: 999px;
-      background: rgba(0,0,0,.06);
-      overflow:hidden;
-      position:relative;
-    }
-    .pill > span{
-      position:absolute;
-      inset:0;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 999px;
-      transition: width .35s ease;
-    }
-    .stepText{
-      font-size: 12px;
-      opacity:.7;
-      min-width: 86px;
-      text-align:right;
-    }
-
-    /* slider */
-    .sliderWrap{
-      margin-top: 12px;
-      padding: 14px 14px 16px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.65);
-      border: 1px solid rgba(0,0,0,.07);
-    }
-    input[type="range"]{
-      width: 100%;
-      accent-color: var(--accent);
-    }
-    .valueRow{
-      display:flex;
-      justify-content:space-between;
-      margin-top: 8px;
-      font-size: 13px;
-      opacity: .85;
-    }
-    .maxValue{
-      font-weight: 750;
-      color: var(--accent);
-    }
-
-    /* Q3 arena for runaway button */
-    .arena{
-      margin-top: 16px;
-      height: 190px;
-      border-radius: 18px;
-      position:relative;
-      overflow:hidden;
-      background:
-        radial-gradient(240px 140px at 20% 30%, rgba(255,77,136,.10), transparent 70%),
-        radial-gradient(220px 120px at 80% 70%, rgba(255,122,168,.12), transparent 70%),
-        rgba(255,255,255,.55);
-      border: 1px dashed rgba(255,77,136,.30);
-    }
-    .arenaHint{
-      position:absolute;
-      inset: 12px 12px auto 12px;
-      font-size: 13px;
-      opacity:.75;
-    }
-    .arenaBtns{
-      position:absolute;
-      inset: 0;
-    }
-    #yesFinal{
-      position:absolute;
-      left: 20px;
-      bottom: 18px;
-    }
-    #noFinal{
-      position:absolute;
-      right: 20px;
-      bottom: 18px;
-      touch-action: none;
-    }
-
-    /* fade transition between screens */
-    .screen{
-      display:none;
-      animation: fadeIn .35s ease;
-    }
-    .screen.active{ display:block; }
-    @keyframes fadeIn{
-      from{ opacity:0; transform: translateY(8px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-
-    .footerNote{
+    /* BUTTON GRID: 2 rows x 4 columns (8 buttons) */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
       margin-top: 14px;
+    }
+
+    /* Make it responsive: on smaller screens, fewer columns */
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .love-btn{
+      aspect-ratio: 1 / 1;         /* square */
+      border-radius: 18px;          /* soft edges */
+      border: 1px solid rgba(255,77,136,.25);
+      background:
+        radial-gradient(120px 120px at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.55) 55%, rgba(255,255,255,.35)),
+        linear-gradient(135deg, rgba(255,77,136,.15), rgba(255,122,166,.10));
+      box-shadow: 0 14px 30px rgba(0,0,0,.08);
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 12px;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+
+    .love-btn:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 18px 36px rgba(0,0,0,.11);
+      border-color: rgba(255,77,136,.40);
+    }
+
+    .love-btn:active{
+      transform: translateY(0px) scale(.99);
+    }
+
+    .emoji{
+      font-size: 28px;
+      line-height:1;
+    }
+    .label{
+      font-weight: 650;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .sub{
       font-size: 12px;
-      opacity:.65;
+      color: var(--muted);
     }
 
-    /* Extra mobile tuning for final question buttons */
-    @media (max-width: 520px){
-      #yesFinal,
-      #noFinal{
-        padding: 8px 12px;
-        font-size: 14px;
-        border-radius: 12px;
-        min-width: 72px;
-      }
+    /* MODAL */
+    .modal-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 8, 14, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modal-backdrop.show{ display:flex; }
 
-      .arena{
-        height: 160px; /* slightly smaller arena for mobile */
-      }
+    .modal{
+      width: min(680px, 100%);
+      border-radius: 22px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,77,136,.25);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 30px 70px rgba(0,0,0,.22);
+      overflow:hidden;
+      animation: pop .12s ease-out;
+    }
+    @keyframes pop{
+      from { transform: scale(.97); opacity: .6; }
+      to   { transform: scale(1); opacity: 1; }
     }
 
-    
+    .modal-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(255,77,136,.12), rgba(255,122,166,.08));
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .modal-title{
+      font-weight: 750;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .close{
+      border: none;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 14px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-weight: 650;
+    }
+    .close:hover{ filter: brightness(.98); }
+
+    .modal-body{
+      padding: 18px 16px 20px;
+      color: var(--ink);
+      line-height: 1.6;
+      font-size: 16px;
+      white-space: pre-wrap; /* keeps line breaks */
+    }
+
+    .footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-align:center;
+    }
   </style>
 </head>
 
 <body>
-  <div class="hearts" id="hearts"></div>
+  <!-- floating hearts (decor) -->
+  <div id="hearts-layer" aria-hidden="true"></div>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="badge"><span class="dot"></span><span>Romantic Mini-Game</span></div>
-
-      <!-- Screen 0 -->
-      <div class="screen active" id="screen0">
-        <h1> Habubuu you wanna play a game?</h1>
-        <p>Two buttons. One destiny. 💘</p>
-
-        <div class="btnRow">
-          <button class="primary" id="startYes">Yes</button>
-          <button class="secondary" id="startNo">No</button>
+  <main class="wrap">
+    <section class="card">
+      <header>
+        <div class="title">
+          <h1>Happy Valentine's Day my Lady 💗</h1>
+          <p>
+            💗ابو شكلك شو بحبكككك
+          </p>
         </div>
+        <div class="hint">You are my everything❤️</div>
+      </header>
 
-        <div class="message" id="startMsg">Okay, we’ll start the game 😊</div>
+      <div class="grid">
+        <!-- Buttons: each points to a message div by id -->
+        <button class="love-btn" data-target="msg1" aria-haspopup="dialog">
+          <div class="emoji">🌹</div>
+          <div class="label">MY VALENTINE's</div>
+          <div class="sub">حبي</div>
+        </button>
 
-        <div class="progress">
-          <div class="pill"><span id="bar"></span></div>
-          <div class="stepText" id="stepText">Step 0/3</div>
-        </div>
+        <button class="love-btn" data-target="msg2" aria-haspopup="dialog">
+          <div class="emoji">😍</div>
+          <div class="label">MY CUTIE BRIOCHE</div>
+          <div class="sub">عشقي</div>
+        </button>
 
-        <div class="footerNote">Tip: Works on mobile too.</div>
+        <button class="love-btn" data-target="msg3" aria-haspopup="dialog">
+          <div class="emoji">✨</div>
+          <div class="label">MY PRIDE</div>
+          <div class="sub">غرامي</div>
+        </button>
+
+        <button class="love-btn" data-target="msg4" aria-haspopup="dialog">
+          <div class="emoji">💕</div>
+          <div class="label">MY PEACE</div>
+          <div class="sub">حياتي</div>
+        </button>
+
+        <button class="love-btn" data-target="msg5" aria-haspopup="dialog">
+          <div class="emoji">🔥</div>
+          <div class="label">MY BABY</div>
+          <div class="sub">يزلملي يزلملي</div>
+        </button>
+
+        <button class="love-btn" data-target="msg6" aria-haspopup="dialog">
+          <div class="emoji">💖</div>
+          <div class="label">MY SUPERWOMAN</div>
+          <div class="sub">قلبي</div>
+        </button>
+
+        <button class="love-btn" data-target="msg7" aria-haspopup="dialog">
+          <div class="emoji">💗</div>
+          <div class="label">MY LOVE</div>
+          <div class="sub">هيامي</div>
+        </button>
+
+        <button class="love-btn" data-target="msg8" aria-haspopup="dialog">
+          <div class="emoji">🌍❤️‍🔥</div>
+          <div class="label">MY EVERYTHING</div>
+          <div class="sub">كلّي</div>
+        </button>
       </div>
 
-      <!-- Screen 1 -->
-      <div class="screen" id="screen1">
-        <h1>You love me?</h1>
-        <p>Be careful… there’s only one correct vibe 😌</p>
+      <div class="footer">Made with love by your daddy💗</div>
+    </section>
+  </main>
 
-        <div class="btnRow">
-          <button class="primary" id="q1a">Yes</button>
-          <button class="secondary" id="q1b">Yes, definitely</button>
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="backdrop" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-top">
+        <div class="modal-title" id="modalTitle">
+          <span id="modalEmoji">💗</span>
+          <span id="modalHeading">A little message</span>
         </div>
-
-        <div class="progress">
-          <div class="pill"><span id="bar1"></span></div>
-          <div class="stepText" id="stepText1">Step 1/3</div>
-        </div>
+        <button class="close" id="closeBtn" type="button">Close</button>
       </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
 
-      <!-- Screen 2 -->
-      <div class="screen" id="screen2">
-        <h1>How much?</h1>
-        <p>Try moving it… I dare you 😏</p>
+  <!-- =========================
+       MESSAGES (EDIT THESE!)
+       ========================= -->
+  <div hidden>
+    <div id="msg1" data-title="MY VALENTINE'S" data-emoji="🌹">
+Habubu Habubu, this is not our first Valentine's
+Your love makes every day feels like Valentin's
+    </div>
 
-        <div class="sliderWrap">
-          <input type="range" id="loveSlider" min="0" max="1000000000000" step="1" value="1000000000000" />
-          <div class="valueRow">
-            <span>0</span>
-            <span class="maxValue" id="sliderValue">1,000,000,000,000</span>
-          </div>
-        </div>
+    <div id="msg2" data-title="MY CUTIE BRIOCHE" data-emoji="😍">
+I love every single thing about you😍, including:
+انتي اطيب واحلى واغلى مرا بالكون كله❤️
+    </div>
 
-        <div class="btnRow" style="margin-top:16px">
-          <button class="primary" id="q2next">Next</button>
-        </div>
+    <div id="msg3" data-title="MY PRIDE" data-emoji="✨">
+I am proud of you and of everything you do Khloudi❤️
+I am proud to have you as a partner, lover, best friend, and wife✨❤️
+    </div>
 
-        <div class="progress">
-          <div class="pill"><span id="bar2"></span></div>
-          <div class="stepText" id="stepText2">Step 2/3</div>
-        </div>
-      </div>
+    <div id="msg4" data-title="MY PEACE" data-emoji="💕">
+You are my peace, my safe place, my happy home❤️
+I love to stay in between your arms, or on my pillow😜
 
-      <!-- Screen 3 -->
-      <div class="screen" id="screen3">
-        <h1>Can you sit on my face?</h1>
-        <p>One of these is… surprisingly difficult to pick.</p>
+    </div>
 
-        <div class="arena" id="arena">
-          <div class="arenaHint">Try to click “No” 👀</div>
-          <div class="arenaBtns">
-            <button class="primary" id="yesFinal">Yes</button>
-            <button class="secondary" id="noFinal">No</button>
-          </div>
-        </div>
+    <div id="msg5" data-title="MY BABY" data-emoji="🔥">
+Today, i just feel I wanna kiss you from your toes to your tips
+and make you scream my name while I eat you out🔥❤️
+بموت عليكي وع خدودك, ايديكي, عيونك, شفايفك, قلبك, رموشك, منخارك
+اسنانك, شعرك, اظافرك, اجريكي, جسمك, كلك عبعضك🥵
+    </div>
 
-        <div class="message" id="finalMsg">💘 Okay. That’s the cutest “Yes” ever.</div>
+    <div id="msg6" data-title="MY SUPERWOMAN" data-emoji="💖">
+I love how persistent you are, how mature you are, and how
+you don't give up, and I'll always support you in everyting✨❤️
+    </div>
 
-        <div class="progress">
-          <div class="pill"><span id="bar3"></span></div>
-          <div class="stepText" id="stepText3">Step 3/3</div>
-        </div>
-      </div>
+    <div id="msg7" data-title="MY LOVE" data-emoji="💗">
+I love you, and I love eveything about you, and everyday
+I feel that I am falling for you more and more❤️
+    </div>
 
+    <div id="msg8" data-title="MY EVERYTHING" data-emoji="🌍❤️‍🔥">
+ربي يخليلي ياكي وما يحرمني منك ابدا يا عمري❤️
+انتي احلى شي صار بحياتي خلودي❤️
+Happy Valentine's Day Habibi🌹❤️
     </div>
   </div>
 
   <script>
-    // ---------- helpers ----------
-    const $ = (id) => document.getElementById(id);
-
-    function showScreen(n){
-      const screens = ["screen0","screen1","screen2","screen3"];
-      screens.forEach((sid, i) => {
-        $(sid).classList.toggle("active", i === n);
-      });
-      // progress bars
-      const pct = (n/3)*100;
-      ["bar","bar1","bar2","bar3"].forEach((bid) => {
-        if ($(bid)) $(bid).style.width = pct + "%";
-      });
-    }
-
-    // ---------- floating hearts background ----------
-    (function makeHearts(){
-      const container = $("hearts");
-      const count = 20;
+    // Floating hearts (lightweight + pretty)
+    (function spawnHearts(){
+      const layer = document.getElementById('hearts-layer');
+      const count = 16;
       for(let i=0;i<count;i++){
-        const h = document.createElement("div");
-        h.className = "heart";
-        const size = 10 + Math.random()*16;
-        h.style.width = size+"px";
-        h.style.height = size+"px";
-        h.style.left = (Math.random()*100)+"vw";
-        h.style.animationDuration = (6 + Math.random()*8) + "s";
-        h.style.animationDelay = (-Math.random()*10) + "s";
-        h.style.opacity = 0.2 + Math.random()*0.6;
-        container.appendChild(h);
+        const h = document.createElement('div');
+        h.className = 'heart';
+        const left = Math.random()*100;
+        const size = 10 + Math.random()*14;
+        const dur  = 10 + Math.random()*10;
+        const delay= Math.random()*6;
+        h.style.left = left + 'vw';
+        h.style.width = size + 'px';
+        h.style.height= size + 'px';
+        h.style.animationDuration = dur + 's';
+        h.style.animationDelay = -delay + 's';
+        h.style.opacity = (0.10 + Math.random()*0.18).toFixed(2);
+        layer.appendChild(h);
       }
     })();
 
-    // ---------- flow control ----------
-    const startMsg = $("startMsg");
+    const backdrop = document.getElementById('backdrop');
+    const modalBody = document.getElementById('modalBody');
+    const modalHeading = document.getElementById('modalHeading');
+    const modalEmoji = document.getElementById('modalEmoji');
+    const closeBtn = document.getElementById('closeBtn');
 
-    $("startYes").addEventListener("click", () => {
-      showScreen(1);
-    });
+    function openModalFromMessage(el){
+      const title = el.getAttribute('data-title') || 'A little message';
+      const emoji = el.getAttribute('data-emoji') || '💗';
+      const text  = el.textContent.trim();
 
-    $("startNo").addEventListener("click", () => {
-      // show message then proceed
-      startMsg.style.display = "block";
-      setTimeout(() => showScreen(1), 850);
-    });
+      modalHeading.textContent = title;
+      modalEmoji.textContent = emoji;
+      modalBody.textContent = text;
 
-    $("q1a").addEventListener("click", () => showScreen(2));
-    $("q1b").addEventListener("click", () => showScreen(2));
-
-// ---------- slider: starts at 0, first interaction jumps to 1T,
-// then user can drag, but it snaps back shortly after dragging stops ----------
-const slider = $("loveSlider");
-const sliderValue = $("sliderValue");
-const MAX = 1000000000000;
-
-function formatNumber(n){
-  return Number(n).toLocaleString("en-US");
-}
-function setSliderValue(v){
-  slider.value = String(v);
-  sliderValue.textContent = formatNumber(v);
-}
-
-// Start at 0
-setSliderValue(0);
-
-let hasJumpedToMax = false;
-let snapTimer = null;
-const SNAP_DELAY_MS = 180; // user can drag; snaps back after a brief pause
-
-function scheduleSnapBack(){
-  clearTimeout(snapTimer);
-  snapTimer = setTimeout(() => {
-    setSliderValue(MAX);
-  }, SNAP_DELAY_MS);
-}
-
-function jumpToMaxOnce(){
-  if (!hasJumpedToMax){
-    hasJumpedToMax = true;
-    setSliderValue(MAX);
-  }
-}
-
-// First attempt (tap/click/drag start) -> jump to MAX
-slider.addEventListener("pointerdown", () => {
-  jumpToMaxOnce();
-});
-
-slider.addEventListener("touchstart", () => {
-  jumpToMaxOnce();
-}, { passive: true });
-
-// While dragging:
-// - after the first jump, allow dragging freely (update label live)
-// - but schedule a snap-back after the user stops moving
-slider.addEventListener("input", () => {
-  if (!hasJumpedToMax){
-    // If somehow they moved before pointerdown triggered
-    jumpToMaxOnce();
-    return;
-  }
-
-  // Let them drag: show the current dragged value
-  sliderValue.textContent = formatNumber(slider.value);
-
-  // Then snap back after a short pause (debounced)
-  scheduleSnapBack();
-});
-
-// On release, snap back quickly
-slider.addEventListener("change", () => {
-  if (!hasJumpedToMax) jumpToMaxOnce();
-  setSliderValue(MAX);
-});
-
-// Extra safety: snap when pointer is released (covers some mobile browsers)
-window.addEventListener("pointerup", () => {
-  if (hasJumpedToMax) setSliderValue(MAX);
-});
-window.addEventListener("touchend", () => {
-  if (hasJumpedToMax) setSliderValue(MAX);
-}, { passive: true });
-
-
-
-    $("q2next").addEventListener("click", () => showScreen(3));
-
-    // ---------- runaway "No" button ----------
-    const arena = $("arena");
-    const noBtn = $("noFinal");
-    const yesBtn = $("yesFinal");
-    const finalMsg = $("finalMsg");
-
-    function clamp(val, min, max){ return Math.min(max, Math.max(min, val)); }
-
-    function moveNoButtonAway(fromX, fromY){
-      const rect = arena.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
-
-      // current position within arena
-      const currentLeft = parseFloat(noBtn.style.left || "");
-      const currentTop = parseFloat(noBtn.style.top || "");
-
-      // If we haven't placed via left/top yet, initialize from current DOM position
-      let left, top;
-      if (Number.isFinite(currentLeft) && Number.isFinite(currentTop)) {
-        left = currentLeft;
-        top  = currentTop;
-      } else {
-        left = (btnRect.left - rect.left);
-        top  = (btnRect.top - rect.top);
-      }
-
-      // vector from pointer to button center
-      const cx = left + btnRect.width/2;
-      const cy = top  + btnRect.height/2;
-      const vx = cx - fromX;
-      const vy = cy - fromY;
-
-      // push distance
-      const push = 80 + Math.random()*70;
-      const len = Math.hypot(vx, vy) || 1;
-      const ux = vx/len, uy = vy/len;
-
-      // new target
-      let newLeft = left + ux*push + (Math.random()*20 - 10);
-      let newTop  = top  + uy*push + (Math.random()*20 - 10);
-
-      // keep inside arena bounds with padding
-      const pad = 10;
-      const maxLeft = rect.width - btnRect.width - pad;
-      const maxTop  = rect.height - btnRect.height - pad;
-
-      newLeft = clamp(newLeft, pad, maxLeft);
-      newTop  = clamp(newTop, pad, maxTop);
-
-      noBtn.style.left = newLeft + "px";
-      noBtn.style.top  = newTop  + "px";
-      noBtn.style.right = "auto";
-      noBtn.style.bottom = "auto";
+      backdrop.classList.add('show');
+      closeBtn.focus();
     }
 
-    // On desktop: evade on hover/mousemove near it
-    noBtn.addEventListener("mouseenter", (e) => {
-      const rect = arena.getBoundingClientRect();
-      moveNoButtonAway(e.clientX - rect.left, e.clientY - rect.top);
+    function closeModal(){
+      backdrop.classList.remove('show');
+    }
+
+    // Button clicks
+    document.querySelectorAll('.love-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-target');
+        const msgEl = document.getElementById(id);
+        if(msgEl) openModalFromMessage(msgEl);
+      });
     });
 
-    // Also evade when pointer gets close inside the arena
-    arena.addEventListener("mousemove", (e) => {
-      const rect = arena.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      const b = noBtn.getBoundingClientRect();
-      const bx = b.left - rect.left;
-      const by = b.top - rect.top;
-
-      const dx = mx - (bx + b.width/2);
-      const dy = my - (by + b.height/2);
-      const dist = Math.hypot(dx, dy);
-
-      if (dist < 120) moveNoButtonAway(mx, my);
+    // Close interactions
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', (e)=>{
+      if(e.target === backdrop) closeModal(); // click outside modal
     });
 
-    // Mobile: evade on touch
-    noBtn.addEventListener("touchstart", (e) => {
-      const rect = arena.getBoundingClientRect();
-      const t = e.touches[0];
-      moveNoButtonAway(t.clientX - rect.left, t.clientY - rect.top);
-      e.preventDefault();
-    }, {passive:false});
-
-    // Prevent "No" from being clicked via keyboard/accidental tap
-    noBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = arena.getBoundingClientRect();
-      moveNoButtonAway(rect.width/2, rect.height/2);
+    // Escape key
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && backdrop.classList.contains('show')) closeModal();
     });
-
-    yesBtn.addEventListener("click", () => {
-      finalMsg.style.display = "block";
-      finalMsg.scrollIntoView({behavior:"smooth", block:"nearest"});
-    });
-
-    // start progress bar state
-    showScreen(0);
   </script>
 </body>
 </html>
